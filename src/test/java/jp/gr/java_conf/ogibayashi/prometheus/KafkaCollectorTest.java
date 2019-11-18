@@ -69,7 +69,7 @@ public class KafkaCollectorTest extends TestCase
         assertEquals(1517330227, mfs.samples.get(0).timestampMs.longValue());
     }
 
-    public void testReplaceValueWithSameLabel() throws IOException {
+    public void testIncrementValueWithSameLabel() throws IOException {
         KafkaCollector collector = new KafkaCollector(emptyConfig);
 
         final String logRecord1 = "{\"name\":\"foo\", \"labels\": { \"label1\": \"v1\", \"label2\": \"v2\" }, \"value\": 9}";
@@ -88,7 +88,7 @@ public class KafkaCollectorTest extends TestCase
 
         assertEquals(2, samples.size());
         assertEquals(jsonRecord.getLabels(), MetricUtil.getLabelMapFromSample(samples.get(1)));
-        assertEquals(18.0, samples.get(1).value);
+        assertEquals(27.0, samples.get(1).value);
             
     }
 

@@ -1,31 +1,27 @@
 package jp.gr.java_conf.ogibayashi.prometheus;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.prometheus.client.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.prometheus.client.Collector;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import java.util.Collections;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.TreeSet;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class KafkaCollector extends Collector {
     private static final Logger LOG = LoggerFactory.getLogger(KafkaCollector.class);
 
     private ObjectMapper mapper = new ObjectMapper();
-    private List<MetricFamilySamples> mfsList = new ArrayList<MetricFamilySamples>();
+    private List<MetricFamilySamples> mfsList = new ArrayList<>();
     private Map<String, Map<KafkaExporterLogEntry, LocalDateTime>> metricEntries = new ConcurrentHashMap<String, Map<KafkaExporterLogEntry, LocalDateTime>>();
-    private PropertyConfig pc;
     private long expire;
     
     public KafkaCollector(PropertyConfig pc) {
-        this.pc = pc;
         expire = pc.getMetricExpire();
     }
 
@@ -38,15 +34,20 @@ public class KafkaCollector extends Collector {
         try {          
             KafkaExporterLogEntry record = mapper.readValue(recordValue, KafkaExporterLogEntry.class);
             String metricName = topic.replaceAll("\\.","_") + "_" + record.getName().replaceAll("\\.","_");
-            if (metricName.startsWith("_")) {
+             if (metricName.startsWith("_")) {
               metricName = metricName.substring(1);
             }
             if(! metricEntries.containsKey(metricName)){
-                metricEntries.put(metricName, new ConcurrentHashMap<KafkaExporterLogEntry, LocalDateTime>());
+                metricEntries.put(metricName, new ConcurrentHashMap<>());
             }
 
             Map<KafkaExporterLogEntry, LocalDateTime> entry = metricEntries.get(metricName);
-            entry.remove(record);
+            Optional<KafkaExporterLogEntry> previousOpt = entry.keySet().stream().filter(e -> e.equals(record)).findFirst();
+            if(previousOpt.isPresent()) {
+                KafkaExporterLogEntry previous = previousOpt.get();
+                record.setValue(record.getValue() + previous.getValue());
+                entry.remove(record);
+            }
             entry.put(record, datetime);
         }
         catch(JsonMappingException e){

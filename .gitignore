@@ -1,3 +1,26 @@
+# Logs
 *.log
+
+# Build
+target/
+
+# IDE
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+
+# Temporary folders
+/temp/
+/tmp/
+/pvolume/
+
+# Configuration
+config/kafka-topic-exporter.properties
+
+# Runtime
+*.pid
+
+# OS
 .DS_Store
-target/*

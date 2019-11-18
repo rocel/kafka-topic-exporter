@@ -81,3 +81,7 @@ Then the following item will be exported.
 ```
 <kafka_topic_name>_<metric_name>{foolabel="foolabelvalue", barlabel="barlabelvalue"} <metric_value> <epoch_value>
 ```
+
+### Counter
+
+Every time a the same record (identical metric `metric_name` and `labels`) is consumed, its value is summed to the previous one(s), if still exists.
