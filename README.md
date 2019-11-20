@@ -15,6 +15,9 @@ The configuration file must be passed as parameter when starting the process.
 ```
 ## Kafka Exporter Properties
 
+# Type of Metric ("counter" || "gauge")
+exporter.metrictype=counter
+
 # HTTP port used for the exporter
 exporter.port=12340
 
@@ -82,6 +85,10 @@ Then the following item will be exported.
 <kafka_topic_name>_<metric_name>{foolabel="foolabelvalue", barlabel="barlabelvalue"} <metric_value> <epoch_value>
 ```
 
-### Counter
+### Metric Type
+With the configuration `exporter.metrictype=counter` you can choose the type of metric following [the Prometheus' documentation](https://prometheus.io/docs/concepts/metric_types/). Only the following types are currently supported :
 
-Every time a the same record (identical metric `metric_name` and `labels`) is consumed, its value is summed to the previous one(s), if still exists.
+#### Counter :
+A _counter_ is a cumulative metric that represents a single monotonically increasing counter whose value can only increase or be reset to zero on restart for a the same record (identical metric `metric_name` and `labels`).
+#### Gauge: 
+A _gauge_ is a metric that represents a single numerical value that can arbitrarily go up and down.
