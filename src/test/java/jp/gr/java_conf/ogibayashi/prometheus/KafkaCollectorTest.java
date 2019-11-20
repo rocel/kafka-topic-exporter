@@ -77,7 +77,7 @@ public class KafkaCollectorTest extends TestCase {
         assertEquals(1517330227, mfs.samples.get(0).timestampMs.longValue());
     }
 
-    public void testIncrementValueWithSameLabel() throws IOException {
+    public void testIncrementValueWithSameLabelAsCounter() throws IOException {
         KafkaCollector collector = new KafkaCollector(counterConfig);
 
         final String logRecord1 = "{\"name\":\"foo\", \"labels\": { \"label1\": \"v1\", \"label2\": \"v2\" }, \"value\": 9}";
@@ -97,6 +97,29 @@ public class KafkaCollectorTest extends TestCase {
         assertEquals(2, samples.size());
         assertEquals(jsonRecord.getLabels(), MetricUtil.getLabelMapFromSample(samples.get(1)));
         assertEquals(27.0, samples.get(1).value);
+
+    }
+
+    public void testIncrementValueWithSameLabelAsGauge() throws IOException {
+        KafkaCollector collector = new KafkaCollector(gaugeConfig);
+
+        final String logRecord1 = "{\"name\":\"foo\", \"labels\": { \"label1\": \"v1\", \"label2\": \"v2\" }, \"value\": 9}";
+        final String logRecord2 = "{\"name\":\"foo\", \"labels\": { \"label1\": \"aa1\", \"label2\": \"bb2\" }, \"value\": 10}";
+        final String logRecord3 = "{\"name\":\"foo\", \"labels\": { \"label1\": \"v1\", \"label2\": \"v2\" }, \"value\": 18}";
+
+        final String topic = "test.hoge";
+        KafkaExporterLogEntry jsonRecord = mapper.readValue(logRecord3, KafkaExporterLogEntry.class);
+
+        collector.add(topic, logRecord1);
+        collector.add(topic, logRecord2);
+        collector.add(topic, logRecord3);
+        List<MetricFamilySamples> mfsList = collector.collect();
+        MetricFamilySamples mfs = mfsList.get(0);
+        List<MetricFamilySamples.Sample> samples = mfs.samples;
+
+        assertEquals(2, samples.size());
+        assertEquals(jsonRecord.getLabels(), MetricUtil.getLabelMapFromSample(samples.get(1)));
+        assertEquals(18.0, samples.get(1).value);
 
     }
 
