@@ -24,6 +24,7 @@ public class PropertyConfig {
         CONSUL_KAFKA_SERVICENAME("consul.kafka.servicename"),
         BOOTSTRAP_SERVERS("bootstrap.servers"),
         EXPORTER_PORT("exporter.port"),
+        EXPORTER_METRIC_TYPE("exporter.metrictype"),
         EXPORTER_METRIC_EXPIRE("exporter.metric.expire.seconds"),
         KAFKA_CONSUMER_TOPICS("kafka.consumer.topics"),
         KAKFA_CONSUMER_REMOVEPREFIX("kafka.consumer.remove.prefix");
@@ -101,6 +102,10 @@ public class PropertyConfig {
     
     public Properties getProperties() {
         return props;
+    }
+
+    public String getMetricType() {
+        return get(Constants.EXPORTER_METRIC_TYPE.key,"counter");
     }
 
     public long getMetricExpire() {
