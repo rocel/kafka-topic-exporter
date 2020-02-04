@@ -1,4 +1,4 @@
-# Kafka Topic Exporter
+# Kafka Topic Exporter ![](https://github.com/rocel/kafka-topic-exporter/workflows/Java%20CI/badge.svg)
 
 Consume Kafka topics and export to Prometheus
 
